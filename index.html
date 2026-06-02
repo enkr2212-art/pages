@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="no">
 <head>
@@ -27,6 +26,7 @@
 
   <button onclick="getLocation()">Hent posisjon</button>
   <button onclick="getBattery()">Hent batteristatus</button>
+  <button onclick="vibratePhone()">Vibrer 📳</button>
 
   <div id="output"></div>
 
@@ -50,7 +50,7 @@
             <br><br>📍 <strong>Posisjon:</strong><br>
             Breddegrad: ${lat}<br>
             Lengdegrad: ${lon}<br>
-            <a href="https://www.google.com/maps?q=${lat},${lon}" targetne i Google Maps
+            <a href="https://www.google.com/maps?q=${lat},${lon}" target="_blankgle Maps
             </a>
           `;
         },
@@ -79,7 +79,20 @@
         `;
       });
     }
+
+    function vibratePhone() {
+      const output = document.getElementById("output");
+
+      if (!navigator.vibrate) {
+        output.innerHTML += "<br>⚠️ Vibrasjon støttes ikke.";
+        return;
+      }
+
+      // Vibrasjonsmønster: vibrer – pause – vibrer
+      navigator.vibrate([200, 100, 200]);
+
+      output.innerHTML += "<br><br>📳 Telefon vibrerer!";
+    }
   </script>
 
 </body>
-</html>
