@@ -1,34 +1,85 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <title>Geolocation + Batteristatus</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px;
+    }
+    #output {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
 <body>
-<h1>Geolocation</h1>
-<p>Trykk på knappen for å få posisjon.</p>
 
-<button onclick="getLocation()">Finn</button>
+  <h1>Mobilinfo 📱</h1>
 
-<p id="demo"></p>
+  <button onclick="getLocation()">Hent posisjon</button>
+  <button onclick="getBattery()">Hent batteristatus</button>
 
-<script>
-const x = document.getElementById("demo");
+  <div id="output"></div>
 
-function getLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(success, error);
-  } else { 
-    x.innerHTML = "Geolocation is not supported by this browser.";
-  }
-}
+  <script>
+    function getLocation() {
+      const output = document.getElementById("output");
 
-function success(position) {
-  x.innerHTML = "Latitude: " + position.coords.latitude + 
-  "<br>Longitude: " + position.coords.longitude;
-}
+      if (!navigator.geolocation) {
+        output.innerHTML = "Geolocation støttes ikke.";
+        return;
+      }
 
-function error() {
-  alert("Sorry, no position available.");
-}
-</script>
+      output.innerHTML = "Henter posisjon...";
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          output.innerHTML += `
+            <br><br>📍 <strong>Posisjon:</strong><br>
+            Breddegrad: ${lat}<br>
+            Lengdegrad: ${lon}<br>
+            <a href="https://www.google.com/maps?q=${lat},${lon}" targetne i Google Maps
+            </a>
+          `;
+        },
+        (error) => {
+          output.innerHTML = "Feil: " + error.message;
+        }
+      );
+    }
+
+    function getBattery() {
+      const output = document.getElementById("output");
+
+      if (!navigator.getBattery) {
+        output.innerHTML += "<br>⚠️ Batteri-API støttes ikke.";
+        return;
+      }
+
+      navigator.getBattery().then((battery) => {
+        const level = Math.round(battery.level * 100);
+        const charging = battery.charging ? "Ja 🔌" : "Nei";
+
+        output.innerHTML += `
+          <br><br>🔋 <strong>Batteristatus:</strong><br>
+          Nivå: ${level}%<br>
+          Lader: ${charging}
+        `;
+      });
+    }
+  </script>
 
 </body>
 </html>
-
