@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <title>Skattejakt 📍</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      margin: 0;
+    }
+
+    h1 {
+      margin: 10px;
+    }
+
+    #map {
+      height: 400px;
+      width: 100%;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+    }
+
+    #status {
+      margin: 15px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Skattejakt 🎯</h1>
+
+<button onclick="checkPosition()">Sjekk posisjon</button>
+
+<div id="status">Poeng: 0</div>
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+  // 🎯 LEGG INN DINE STEDER HER
+  const locations = [
+    { name: "Checkpoint 1", lat: 60.792, lon: 11.068, found: false },
+    { name: "Checkpoint 2", lat: 60.794, lon: 11.070, found: false },
+    { name: "Checkpoint 3", lat: 60.790, lon: 11.065, found: false }
+  ];
+
+  const MAX_DISTANCE = 50; // meter
+  let score = 0;
+
+  // 🗺️ Startkart
+  const map = L.map('map').setView([60.792, 11.068], 15);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+
+  let userMarker;
+
+  // 📍 Tegn checkpoints på kart
+  locations.forEach(place => {
+    L.marker([place.lat, place.lon])
+      .addTo(map)
+      .bindPopup(place.name);
+  });
+
+  function checkPosition() {
+    const status = document.getElementById("status");
+
+    if (!navigator.geolocation) {
+      status.innerHTML = "Geolocation støttes ikke.";
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLat = position.coords.latitude;
+        const userLon = position.coords.longitude;
+
+        // Oppdater brukerposisjon på kart
+        if (userMarker) {
+          map.removeLayer(userMarker);
+        }
+
+        userMarker = L.marker([userLat, userLon])
+          .addTo(map)
+          .bindPopup("Du er her")
+          .openPopup();
+
+        map.setView([userLat, userLon], 17);
+
+        let foundSomething = false;
+
+        locations.forEach(place => {
+          if (place.found) return;
+
+          const dist = getDistance(userLat, userLon, place.lat, place.lon);
+
