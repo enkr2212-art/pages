@@ -1,38 +1,3 @@
-<!DOCTYPE html>
-<html lang="no">
-<head>
-  <meta charset="UTF-8">
-  <title>Finn målet 🎯</title>
-
-  <style>
-    body {
-      text-align: center;
-      font-family: Arial;
-      margin-top: 30px;
-    }
-
-    #arrow {
-      font-size: 80px;
-      display: inline-block;
-      transition: transform 0.2s linear;
-    }
-
-    #info {
-      margin-top: 20px;
-      font-size: 20px;
-    }
-  </style>
-</head>
-<body>
-
-<h1>Finn klasserommet 🎯</h1>
-
-<div id="arrow">⬆️</div>
-
-<div id="info">
-  Venter på GPS...
-</div>
-
 <script>
   // 🎯 MÅLET
   const targetLat = 61.1126534;
@@ -40,10 +5,10 @@
 
   let userHeading = 0;
 
-  // 📡 Hent retning (kompass / gyro hvis tilgjengelig)
+  // 📡 Kompass
   window.addEventListener("deviceorientation", (event) => {
     if (event.alpha !== null) {
-      userHeading = event.alpha;
+      userHeading = 360 - event.alpha; // viktig fix
     }
   });
 
@@ -56,14 +21,12 @@
       const distance = getDistance(userLat, userLon, targetLat, targetLon);
       const bearing = getBearing(userLat, userLon, targetLat, targetLon);
 
-      // 🧭 Regn ut retning vi må peke
-      const direction = bearing - userHeading;
+      let direction = bearing - userHeading;
+      direction = (direction + 360) % 360; // viktig fix
 
-      // 🔄 Roter pil
       document.getElementById("arrow").style.transform =
         `rotate(${direction}deg)`;
 
-      // 🧾 Info
       document.getElementById("info").innerHTML = `
         Avstand til mål: <strong>${Math.round(distance)} meter</strong>
       `;
@@ -76,7 +39,7 @@
     }
   );
 
-  // 📏 Avstand (Haversine)
+  // 📏 Avstand (FERDIG)
   function getDistance(lat1, lon1, lat2, lon2) {
     const R = 6371000;
     const toRad = deg => deg * Math.PI / 180;
@@ -84,3 +47,32 @@
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
 
+    const a =
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+  }
+
+  // 🧭 Bearing (MANGLET HELT)
+  function getBearing(lat1, lon1, lat2, lon2) {
+    const toRad = deg => deg * Math.PI / 180;
+    const toDeg = rad => rad * 180 / Math.PI;
+
+    const dLon = toRad(lon2 - lon1);
+
+    const y = Math.sin(dLon) * Math.cos(toRad(lat2));
+    const x =
+      Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
+      Math.sin(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.cos(dLon);
+
+    let brng = toDeg(Math.atan2(y, x));
+    return (brng + 360) % 360;
+  }
+</script>
