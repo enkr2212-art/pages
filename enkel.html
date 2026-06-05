@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <title>Geolocation</title>
+</head>
+<body>
+
+<button onclick="getLocation()">Hent posisjon</button>
+<p id="output"></p>
+
+<script>
+function getLocation() {
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+
+    document.getElementById("output").innerHTML = `
+      Breddegrad: ${lat}<br>
+      Lengdegrad: ${lon}<br>
+      <a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank</a>
+    `;
+  });
+}
+</script>
+
+</body>
+</html>
