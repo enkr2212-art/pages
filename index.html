@@ -2,97 +2,51 @@
 <html lang="no">
 <head>
   <meta charset="UTF-8">
-  <title>Geolocation + Batteristatus</title>
+  <title>Registrer Kartpunkt</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 50px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin: 10px;
-    }
-    #output {
-      margin-top: 20px;
-      font-size: 18px;
-    }
+    body { font-family: sans-serif; margin: 30px; max-width: 400px; }
+    .felt { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    input { width: 100%; padding: 8px; box-sizing: border-box; }
+    button { padding: 10px 15px; background: #28a745; color: white; border: none; cursor: pointer; font-size: 16px; }
+    button:hover { background: #218838; }
+    #status { margin-top: 15px; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <h1>Mobilinfo 📱</h1>
+  <h2>Registrer nytt punkt på kartet</h2>
+  
+  <div class="felt">
+    <label>Stedsnavn:</label>
+    <input type="text" id="navn" placeholder="F.eks. Startstreken">
+  </div>
+  
+  <div class="felt">
+    <label>Breddegrad (Latitude):</label>
+    <input type="number" id="lat" step="any" placeholder="F.eks. 59.9111">
+  </div>
+  
+  <div class="felt">
+    <label>Lengdegrad (Longitude):</label>
+    <input type="number" id="lng" step="any" placeholder="F.eks. 10.7528">
+  </div>
 
-  <button onclick="getLocation()">Hent posisjon</button>
-  <button onclick="getBattery()">Hent batteristatus</button>
-  <button onclick="vibratePhone()">Vibrer 📳</button>
+  <button id="lagreBtn">Lagre til database</button>
+  <p id="status"></p>
 
-  <div id="output"></div>
+  <script type="module">
+    // MERK: Erstatt disse to strengene med de faktiske CDN-lenkene du får fra konsollen
+    import { initializeApp } from "firebase/app";
+    import { getAnalytics } from "firebase/analytics";
 
-  <script>
-    function getLocation() {
-      const output = document.getElementById("output");
-
-      if (!navigator.geolocation) {
-        output.innerHTML = "Geolocation støttes ikke.";
-        return;
-      }
-
-      output.innerHTML = "Henter posisjon...";
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-
-          output.innerHTML += `
-            <br><br>📍 <strong>Posisjon:</strong><br>
-            Breddegrad: ${lat}<br>
-            Lengdegrad: ${lon}<br>
-            <a href="https://www.google.com/maps?q=${lat},${lon}" target="_blankgle Maps
-            </a>
-          `;
-        },
-        (error) => {
-          output.innerHTML = "Feil: " + error.message;
-        }
-      );
-    }
-
-    function getBattery() {
-      const output = document.getElementById("output");
-
-      if (!navigator.getBattery) {
-        output.innerHTML += "<br>⚠️ Batteri-API støttes ikke.";
-        return;
-      }
-
-      navigator.getBattery().then((battery) => {
-        const level = Math.round(battery.level * 100);
-        const charging = battery.charging ? "Ja 🔌" : "Nei";
-
-        output.innerHTML += `
-          <br><br>🔋 <strong>Batteristatus:</strong><br>
-          Nivå: ${level}%<br>
-          Lader: ${charging}
-        `;
-      });
-    }
-
-    function vibratePhone() {
-      const output = document.getElementById("output");
-
-      if (!navigator.vibrate) {
-        output.innerHTML += "<br>⚠️ Vibrasjon støttes ikke.";
-        return;
-      }
-
-      // Vibrasjonsmønster: vibrer – pause – vibrer
-      navigator.vibrate([200, 100, 200]);
-
-      output.innerHTML += "<br><br>📳 Telefon vibrerer!";
-    }
-  </script>
-
-</body>
+    // Din prosjektkonfigurasjon
+    const firebaseConfig = {
+  apiKey: "AIzaSyA7xG5FCWJ6SJAfUdq4VBAs253ptdS-V6g",
+  authDomain: "kart-8cb6e.firebaseapp.com",
+  projectId: "kart-8cb6e",
+  storageBucket: "kart-8cb6e.firebasestorage.app",
+  messagingSenderId: "443569029707",
+  appId: "1:443569029707:web:51f177364611bdd13f43ce",
+  measurementId: "G-1J323BJRDY"
+};
